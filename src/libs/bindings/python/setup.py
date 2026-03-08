@@ -1,3 +1,11 @@
+"""
+@file setup.py
+@brief Packaging configuration for the Python Calculator bindings.
+
+This script builds and installs the `calc` Python package which wraps
+the Calculator C API.
+"""
+
 import pathlib
 import setuptools
 

@@ -1,35 +1,40 @@
-// $ em++ calc_js_api.cc ../../core/*.cc -I../../core/include -std=c++23 -O3 --bind -o calculator.js
-#include <string>
-#include <emscripten/bind.h>
+// $ em++ calc_js_api.cc ../../core/*.cc -I../../core/include -std=c++23 -O3
+// --bind -o calculator.js
 #include "calc/calculator.h"
+#include <emscripten/bind.h>
+#include <string>
 
-struct CalculationResult {
-    double value;
-    std::string error;
-    bool success;
+struct CalculationResult
+{
+  double value;
+  std::string error;
+  bool success;
 };
 
-class JSCalculator {
+class JSCalculator
+{
 public:
-    JSCalculator() = default;
+  JSCalculator() = default;
 
-    CalculationResult compute(const std::string &expr) const {
-        auto result = calc.compute(expr);
-        if (!result) return {0.0, result.error(), false};
-        return {*result, "", true};
-    }
+  CalculationResult compute(const std::string &expr) const
+  {
+    auto result = calc.compute(expr);
+    if (!result) return {0.0, result.error(), false};
+    return {*result, "", true};
+  }
 
 private:
-    Calc::Calculator calc;
+  Calc::Calculator calc;
 };
 
-EMSCRIPTEN_BINDINGS(calculator_module) {
-    emscripten::value_object<CalculationResult>("CalculationResult")
-        .field("value", &CalculationResult::value)
-        .field("error", &CalculationResult::error)
-        .field("success", &CalculationResult::success);
+EMSCRIPTEN_BINDINGS(calculator_module)
+{
+  emscripten::value_object<CalculationResult>("CalculationResult")
+      .field("value", &CalculationResult::value)
+      .field("error", &CalculationResult::error)
+      .field("success", &CalculationResult::success);
 
-    emscripten::class_<JSCalculator>("Calculator")
-        .constructor<>()
-        .function("compute", &JSCalculator::compute);
+  emscripten::class_<JSCalculator>("Calculator")
+      .constructor<>()
+      .function("compute", &JSCalculator::compute);
 }

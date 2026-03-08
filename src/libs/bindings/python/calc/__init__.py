@@ -1,16 +1,17 @@
 """
+@package calc
 @file __init__.py
-@brief Python wrapper for the Calculator C API using ctypes.
+@brief Python bindings for the Calculator C API.
 
-This module exposes a minimal Python interface to the Calculator singleton implemented
-in C++. It wraps the C API functions `Calculator_compute` and `Calculator_get_last_error`.
+This module provides a thin Python wrapper around the Calculator C API
+implemented in C++. The bindings are implemented using ctypes.
 
-This version keeps everything in __init__.py so that you can import the module as:
+Example usage:
 
-```
+@code{.py}
 from calc import Calculator
 Calculator.compute("1 + 2 * 3")
-```
+@endcode
 """
 
 import ctypes
@@ -38,11 +39,10 @@ lib.Calculator_get_last_error.restype = ctypes.c_char_p
 # ----------------------------------------------------------------------
 class Calculator:
     """
-    @brief Python-friendly interface to the C API Calculator singleton.
+    @brief Python interface to the Calculator engine.
 
-    This class provides a single entry point to compute mathematical expressions
-    using the underlying C++ Calculator via the C API. Errors are reported as Python
-    exceptions.
+    Provides access to the underlying C++ calculator via the C API.
+    Expressions are evaluated using the static method compute().
     """
 
     @staticmethod

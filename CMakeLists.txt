@@ -56,7 +56,9 @@ if (CALC_DEV_MODE)
         set(DOXYGEN_CLASS_GRAPH YES)
         set(DOXYGEN_CALL_GRAPH YES)
         set(DOXYGEN_CALLER_GRAPH YES)
-        doxygen_add_docs(doxygen ${CMAKE_SOURCE_DIR}/src COMMENT "Generating HTML documentation")
+        set(DOXYGEN_GRAPHICAL_HIERARCHY YES)
+        doxygen_add_docs(doxygen ${CMAKE_SOURCE_DIR}/src/libs/core 
+            COMMENT "Generating HTML documentation")
     endif()
 
     include(CTest)
@@ -98,3 +100,4 @@ set(CPACK_PACKAGE_DESCRIPTION "A simple Calculator written in C++")
 set(CPACK_PACKAGE_CONTACT "37257700+Infinage@users.noreply.github.com")
 set(CPACK_GENERATOR TGZ) 
 include(CPack)
+

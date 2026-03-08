@@ -10,7 +10,7 @@ Calc::Tokenizer::processToken(std::string_view raw) const
   if (it != validTokens.end()) return Token{it->second};
 
   double value;
-  const char *start = raw.data(); 
+  const char *start = raw.data();
   const char *end = raw.data() + raw.size();
   auto [ptr, ec] = std::from_chars(start, end, value);
   if (ec != std::errc{} || ptr != end)
