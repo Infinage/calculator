@@ -1,46 +1,170 @@
 name: build-test-deploy
+
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-pack:
+
+# =====================================
+# JOB 1: Documentation & code coverage
+# =====================================
+  quality-checks:
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake doxygen libwebkit2gtk-4.1-dev python3
+          python3 -m pip install --break-system-packages gcovr
+
+      - name: Configure
+        run: cmake -B build-qual -DENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Run docs/coverage
+        run: cmake --build build-qual --target docs coverage -j4
+
+      - name: Upload docs and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-and-coverage
+          path: |
+            docs
+            coverage.html
+
+
+# =====================================
+# JOB 2: Cross-platform build & test matrix
+# =====================================
+  test-matrix:
+
+    needs: quality-checks
+
+    name: ${{ matrix.os }} / ${{ matrix.compiler }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        compiler: [gcc, clang, msvc]
+
+        exclude:
+          - os: windows-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: msvc
+          - os: ubuntu-latest
+            compiler: msvc
+
     steps:
       - uses: actions/checkout@v5
-      - name: Install Dependencies
+
+      # ---------- Windows Dependencies (NuGet) ----------
+      - name: Install WebView2 (Windows)
+        if: runner.os == 'Windows'
+        run: nuget install Microsoft.Web.WebView2 -Version 1.0.2592.51 -OutputDirectory packages
+
+
+      # ---------- Linux Dependencies ----------
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
         run: |
-          sudo apt-get update 
-          sudo apt-get install -y cmake doxygen gcovr libwebkit2gtk-4.1-dev \
-            python3-setuptools python3-wheel python3 pipx
-          pipx install gcovr
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev
+          if [[ "${{ matrix.compiler }}" == "gcc" ]]; then
+            sudo apt-get install -y g++-14
+          else
+            sudo apt-get install -y clang-20
+          fi
 
-      - name: Configure Debug
+
+      # ---------- Set Environment Variables ----------
+      - name: Set Compiler Environment
+        shell: bash
         run: |
-          cmake -B build-debug -DENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build-debug -j $(nproc) -t coverage docs
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            if [[ "${{ matrix.compiler }}" == "clang" ]]; then
+              echo "CXX=clang-cl" >> $GITHUB_ENV
+              echo "CC=clang-cl" >> $GITHUB_ENV
+            else
+              echo "CXX=cl" >> $GITHUB_ENV
+              echo "CC=cl" >> $GITHUB_ENV
+            fi
+          elif [[ "${{ runner.os }}" == "Linux" ]]; then
+            if [[ "${{ matrix.compiler }}" == "gcc" ]]; then
+              echo "CXX=g++" >> $GITHUB_ENV
+            else
+              echo "CXX=clang++" >> $GITHUB_ENV
+            fi
+          else
+            echo "CXX=clang++" >> $GITHUB_ENV
+          fi
 
-      - name: Run Tests
-        working-directory: build-debug
-        run: ctest --output-on-failure
-
-      - name: Configure Release
+      # ---------- Configure ----------
+      - name: Configure
+        shell: bash
         run: |
-          cmake -B build -DBUILD_LANG_BINDINGS=ON -DCMAKE_BUILD_TYPE=Release
-          cmake --build build -j $(nproc) -t python_wheel
+          CMAKE_FLAGS=("-DCMAKE_BUILD_TYPE=Release")
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            if [[ "${{ matrix.compiler }}" == "clang" ]]; then
+              CMAKE_FLAGS+=("-T ClangCL")
+            fi
+          else
+            CMAKE_FLAGS+=("-DCMAKE_CXX_COMPILER=${{ env.CXX }}")
+          fi
 
-      - name: Create Packages
+          cmake -B build "${CMAKE_FLAGS[@]}"
+
+      # ---------- Build ----------
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+
+      # ---------- Test ----------
+      - name: Test
         working-directory: build
-        run: cpack && cmake --build . --target python_wheel
+        run: ctest --output-on-failure -C Release
 
-      - name: Bundle Documentation
-        run: zip -r calculator-docs.zip docs/ coverage.html
 
-      - name: Upload Artifacts
+# =====================================
+# JOB 3: Package artifacts
+# =====================================
+  package:
+
+    needs: test-matrix
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-13 libwebkit2gtk-4.1-dev \
+            python3-setuptools python3-pip python3-wheel
+
+      - name: Configure release build
+        run: cmake -B build-release -DCMAKE_BUILD_TYPE=Release -DBUILD_LANG_BINDINGS=ON
+
+
+      - name: Build packages
+        run: |
+          cmake --build build-release --target python_wheel
+          cmake --build build-release --target package
+
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: calculator-dist-${{ github.sha }}
           path: |
-            build/*.tar.gz
-            build/src/libs/bindings/python/dist/*.whl
-            calculator-docs.zip
+            build-release/*.tar.gz
+            build-release/src/libs/bindings/python/dist/*.whl

@@ -8,6 +8,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang") 
+    # Fix clang not supporting std::expected
+    add_compile_definitions(__cpp_concepts=202002L)
+    if(WIN32) # Fix Clang + Win issue with gtest
+        add_compile_options(-Wno-builtin-macro-redefined)
+    endif()
+endif()
+
 list(FIND CMAKE_CXX_COMPILE_FEATURES cxx_std_23 cxx23_supported)
 if (cxx23_supported EQUAL -1)
     message(FATAL_ERROR "C++ 23 Standard not supported by compiler")

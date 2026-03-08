@@ -1,5 +1,23 @@
 #include "calc/tokenizer.h"
-#include <charconv>
+
+namespace
+{
+std::optional<double> from_chars(std::string_view str)
+{
+    try
+    {
+        std::string temp{str};
+        size_t pos;
+        double val = std::stod(temp, &pos);
+        if (pos != str.size()) return std::nullopt;
+        return val;
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
+}
+} // namespace
 
 std::expected<Calc::Token, std::string>
 Calc::Tokenizer::processToken(std::string_view raw) const
@@ -9,11 +27,8 @@ Calc::Tokenizer::processToken(std::string_view raw) const
     auto it = validTokens.find(raw);
     if (it != validTokens.end()) return Token{it->second};
 
-    double value;
-    const char *start = raw.data();
-    const char *end = raw.data() + raw.size();
-    auto [ptr, ec] = std::from_chars(start, end, value);
-    if (ec != std::errc{} || ptr != end)
+    auto value = from_chars(raw);
+    if (!value)
         return std::unexpected{"Not a valid number: '" + std::string{raw} +
                                "'"};
 
