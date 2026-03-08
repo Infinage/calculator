@@ -132,42 +132,42 @@ async function calculate() {
 int main()
 try
 {
-  webview::webview w{false, nullptr};
+    webview::webview w{false, nullptr};
 
-  w.set_title("Calc GUI");
-  w.set_size(480, 640, WEBVIEW_HINT_NONE);
+    w.set_title("Calc GUI");
+    w.set_size(480, 640, WEBVIEW_HINT_NONE);
 
-  // Bind C++ function callable from JS
-  Calc::Calculator calc;
-  w.bind("evaluate",
-         [&calc](const std::string &json)
-         {
-           auto expr = json.substr(2, json.size() - 4);
-           auto res = calc.compute(expr);
-           if (res.has_value())
-             return std::format(R"({{"error":false,"value":{}}})", *res);
-           else
+    // Bind C++ function callable from JS
+    Calc::Calculator calc;
+    w.bind("evaluate",
+           [&calc](const std::string &json)
            {
-             std::string err = res.error();
-             std::string escaped;
-             for (char c : err)
-             {
-               if (c == '"')
-                 escaped += "\\\"";
+               auto expr = json.substr(2, json.size() - 4);
+               auto res = calc.compute(expr);
+               if (res.has_value())
+                   return std::format(R"({{"error":false,"value":{}}})", *res);
                else
-                 escaped += c;
-             }
-             return std::format(R"({{"error":true,"value":"{}"}})", escaped);
-           }
-         });
+               {
+                   std::string escaped;
+                   for (const char c : res.error())
+                   {
+                       if (c == '"')
+                           escaped += "\\\"";
+                       else
+                           escaped += c;
+                   }
+                   return std::format(R"({{"error":true,"value":"{}"}})",
+                                      escaped);
+               }
+           });
 
-  w.set_html(html);
-  w.run();
+    w.set_html(html);
+    w.run();
 
-  return 0;
+    return 0;
 }
 
 catch (const webview::exception &ex)
 {
-  std::cerr << ex.what() << "\n";
+    std::cerr << ex.what() << "\n";
 }

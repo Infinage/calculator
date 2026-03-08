@@ -19,19 +19,19 @@ namespace Calc
  */
 class Calculator
 {
-public:
-  /**
-   * @brief Computes the result of a mathematical expression.
-   *
-   * @param expr Input expression string.
-   * @return Computed value or error string.
-   */
-  std::expected<double, std::string> compute(std::string_view expr) const;
+  public:
+    /**
+     * @brief Computes the result of a mathematical expression.
+     *
+     * @param expr Input expression string.
+     * @return Computed value or error string.
+     */
+    std::expected<double, std::string> compute(std::string_view expr) const;
 
-private:
-  Tokenizer tokenizer;
-  Parser parser;
-  Evaluator evaluator;
+  private:
+    Tokenizer tokenizer;
+    Parser parser;
+    Evaluator evaluator;
 };
 
 } // namespace Calc

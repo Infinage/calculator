@@ -18,6 +18,7 @@ endforeach()
 # Produce coverage report
 find_program(GCOVR_PATH gcovr)
 if(GCOVR_PATH)
+    register_special_target(coverage)
     add_custom_target(coverage
         COMMAND ${CMAKE_COMMAND} -E echo "Cleaning old coverage data..."
         COMMAND find ${CMAKE_BINARY_DIR} -name "*.gcda" -delete
@@ -31,7 +32,7 @@ if(GCOVR_PATH)
             -o ${CMAKE_SOURCE_DIR}/coverage.html
 
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        BYPRODUCTS ${CMAKE_SOURCE_DIR}/coverage
+        BYPRODUCTS ${CMAKE_SOURCE_DIR}/coverage.html
         DEPENDS tokenizerTest parserTest evaluatorTest calculatorTest)
 else()
     add_custom_target(coverage COMMAND false COMMENT "Gcovr not found")

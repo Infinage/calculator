@@ -26,23 +26,23 @@ namespace Calc
  */
 class Parser
 {
-public:
-  /**
-   * @brief Parses infix tokens into postfix (Reverse Polish Notation).
-   *
-   * @param tokens Infix token sequence.
-   * @return Postfix token sequence or error string.
-   */
-  std::expected<std::vector<Token>, std::string>
-  parse(std::span<Token> tokens) const;
+  public:
+    /**
+     * @brief Parses infix tokens into postfix (Reverse Polish Notation).
+     *
+     * @param tokens Infix token sequence.
+     * @return Postfix token sequence or error string.
+     */
+    std::expected<std::vector<Token>, std::string>
+    parse(std::span<Token> tokens) const;
 
-private:
-  /// Operator precedence table (higher value = higher precedence).
-  const std::unordered_map<Token::TokenType, short> oPriority{
-      {Token::TokenType::Add, 2},   {Token::TokenType::Sub, 2},
-      {Token::TokenType::Mul, 3},   {Token::TokenType::Div, 3},
-      {Token::TokenType::Open, 99}, {Token::TokenType::Close, 99},
-  };
+  private:
+    /// Operator precedence table (higher value = higher precedence).
+    const std::unordered_map<Token::TokenType, short> oPriority{
+        {Token::TokenType::Add, 2},   {Token::TokenType::Sub, 2},
+        {Token::TokenType::Mul, 3},   {Token::TokenType::Div, 3},
+        {Token::TokenType::Open, 99}, {Token::TokenType::Close, 99},
+    };
 };
 
 } // namespace Calc

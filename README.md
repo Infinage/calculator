@@ -8,3 +8,6 @@
 - Host calculator.html via github pages
 - Bindings for Rust / GO
 - Cache FetchContent even with --fresh
+- ccache support
+- Matrix to test on multiple platforms and with multiple compilers?
+- em++ install for ci/cd test

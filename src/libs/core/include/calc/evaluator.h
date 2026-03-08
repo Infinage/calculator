@@ -23,14 +23,14 @@ namespace Calc
  */
 class Evaluator
 {
-public:
-  /**
-   * @brief Evaluates a postfix expression.
-   *
-   * @param postfix Tokens in Reverse Polish Notation.
-   * @return Computed double value or error string.
-   */
-  std::expected<double, std::string> eval(std::span<Token> postfix) const;
+  public:
+    /**
+     * @brief Evaluates a postfix expression.
+     *
+     * @param postfix Tokens in Reverse Polish Notation.
+     * @return Computed double value or error string.
+     */
+    std::expected<double, std::string> eval(std::span<Token> postfix) const;
 };
 
 } // namespace Calc

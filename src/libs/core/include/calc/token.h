@@ -18,22 +18,22 @@ namespace Calc
  */
 struct Token
 {
-  /**
-   * @brief Enumerates all supported token types.
-   */
-  enum class TokenType
-  {
-    Num,   ///< Numeric literal
-    Open,  ///< '('
-    Close, ///< ')'
-    Mul,   ///< '*'
-    Div,   ///< '/'
-    Add,   ///< '+'
-    Sub    ///< '-'
-  } type;
+    /**
+     * @brief Enumerates all supported token types.
+     */
+    enum class TokenType
+    {
+        Num,   ///< Numeric literal
+        Open,  ///< '('
+        Close, ///< ')'
+        Mul,   ///< '*'
+        Div,   ///< '/'
+        Add,   ///< '+'
+        Sub    ///< '-'
+    } type;
 
-  /// Holds numeric value if type == Num.
-  std::optional<double> number{std::nullopt};
+    /// Holds numeric value if type == Num.
+    std::optional<double> number{std::nullopt};
 };
 
 } // namespace Calc

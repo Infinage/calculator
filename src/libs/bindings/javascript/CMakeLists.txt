@@ -15,7 +15,7 @@ add_custom_command(OUTPUT calculator.wasm
     $<$<CONFIG:Release>:-O3> -std=c++23 --bind -o calculator.js
     DEPENDS ${CALC_SOURCES}
     COMMENT "Building target calculator.wasm"
-    COMMAND_EXPAND_LISTS CODEGEN)
+    COMMAND_EXPAND_LISTS)
 
 # Making sure the build invokes the custom command above
 add_custom_target(calculator_wasm ALL DEPENDS calculator.wasm)

@@ -1,0 +1,46 @@
+name: build-test-deploy
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update 
+          sudo apt-get install -y cmake doxygen gcovr libwebkit2gtk-4.1-dev \
+            python3-setuptools python3-wheel python3 pipx
+          pipx install gcovr
+
+      - name: Configure Debug
+        run: |
+          cmake -B build-debug -DENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build-debug -j $(nproc) -t coverage docs
+
+      - name: Run Tests
+        working-directory: build-debug
+        run: ctest --output-on-failure
+
+      - name: Configure Release
+        run: |
+          cmake -B build -DBUILD_LANG_BINDINGS=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j $(nproc) -t python_wheel
+
+      - name: Create Packages
+        working-directory: build
+        run: cpack && cmake --build . --target python_wheel
+
+      - name: Bundle Documentation
+        run: zip -r calculator-docs.zip docs/ coverage.html
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-dist-${{ github.sha }}
+          path: |
+            build/*.tar.gz
+            build/src/libs/bindings/python/dist/*.whl
+            calculator-docs.zip
