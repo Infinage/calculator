@@ -148,8 +148,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-13 libwebkit2gtk-4.1-dev \
-            python3-setuptools python3-pip python3-wheel
+          sudo apt-get install -y g++-14 libwebkit2gtk-4.1-dev \
+            python3-setuptools python3-pip python3-wheel git
+          git clone https://github.com/emscripten-core/emsdk.git $HOME/emsdk
+          $HOME/emsdk/emsdk install latest
+          $HOME/emsdk/emsdk activate latest
+          echo "PATH=$HOME/emsdk/upstream/emscripten:$PATH" >> $GITHUB_ENV
 
       - name: Configure release build
         run: cmake -B build-release -DCMAKE_BUILD_TYPE=Release -DBUILD_LANG_BINDINGS=ON
@@ -157,7 +161,7 @@ jobs:
 
       - name: Build packages
         run: |
-          cmake --build build-release --target python_wheel
+          cmake --build build-release --target python_wheel wasm_zip
           cmake --build build-release --target package
 
 
@@ -168,3 +172,4 @@ jobs:
           path: |
             build-release/*.tar.gz
             build-release/src/libs/bindings/python/dist/*.whl
+            build-release/src/libs/bindings/javascript/calculator_wasm.zip

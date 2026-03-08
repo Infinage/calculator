@@ -19,3 +19,14 @@ add_custom_command(OUTPUT calculator.wasm
 
 # Making sure the build invokes the custom command above
 add_custom_target(calculator_wasm ALL DEPENDS calculator.wasm)
+
+# An optional target to package this folder as a zip file
+register_special_target(wasm_zip)
+add_custom_target(wasm_zip DEPENDS calculator_wasm
+    COMMAND ${CMAKE_COMMAND} -E tar "cf" 
+    ${CMAKE_CURRENT_BINARY_DIR}/calculator_wasm.zip 
+    ${CMAKE_CURRENT_SOURCE_DIR}/calculator.html
+    ${CMAKE_CURRENT_SOURCE_DIR}/calculator.js
+    ${CMAKE_CURRENT_SOURCE_DIR}/calculator.wasm
+    --format=zip 
+    COMMENT "Packaging JS/WASM bindings into calculator_wasm.zip")
