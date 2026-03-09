@@ -2,3 +2,4 @@ Testing
 docs
 build
 .cache
+fuzz/corpus

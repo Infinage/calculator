@@ -8,12 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Fix clang not supporting std::expected 
+# and macro defined issue with gtest
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang") 
-    # Fix clang not supporting std::expected
     add_compile_definitions(__cpp_concepts=202002L)
-    if(WIN32) # Fix Clang + Win issue with gtest
-        add_compile_options(-Wno-builtin-macro-redefined)
-    endif()
+    add_compile_options(-Wno-builtin-macro-redefined)
 endif()
 
 list(FIND CMAKE_CXX_COMPILE_FEATURES cxx_std_23 cxx23_supported)
@@ -21,7 +20,9 @@ if (cxx23_supported EQUAL -1)
     message(FATAL_ERROR "C++ 23 Standard not supported by compiler")
 endif()
 
-option(BUILD_TESTS "Build tests" ON)
+option(BUILD_TESTS "Build tests using Google Test" ON)
+option(BUILD_BENCHMARKS "Build benchmarks using Google Benchmark" OFF)
+option(BUILD_FUZZERS "Build fuzz tests using libFuzzer" OFF)
 option(BUILD_LANG_BINDINGS "Build language bindings" OFF)
 option(ENABLE_SANITIZERS "Enable UB sanitizers" OFF)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
@@ -85,6 +86,14 @@ endif()
 if (BUILD_TESTS)
     include(CTest)
     add_subdirectory(test)
+endif()
+
+if (BUILD_BENCHMARKS)
+    add_subdirectory(bench)
+endif()
+
+if (BUILD_FUZZERS)
+    add_subdirectory(fuzz)
 endif()
 
 # Add source mandatorily duh
