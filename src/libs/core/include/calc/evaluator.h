@@ -16,6 +16,9 @@ namespace Calc
  * - Push numbers onto stack
  * - On operator, pop two operands, apply operator, push result
  *
+ * Supports both binary operators (+ - * /)
+ * and unary operators (+ -).
+ *
  * Errors:
  * - Stack underflow (invalid expression)
  * - Divide by zero

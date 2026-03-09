@@ -18,8 +18,13 @@ namespace Calc
  *
  * Handles:
  * - Operator precedence
- * - Left associativity
+ * - Associativity rules
  * - Parentheses grouping
+ *
+ * The parser also performs context-aware detection of unary
+ * operators (+ and -). Depending on their position in the
+ * expression, they are converted to the dedicated token types
+ * UPlus and UMinus before precedence processing.
  *
  * On success, returns a postfix-ordered vector of Tokens.
  * On error (e.g., imbalanced parentheses), returns an error string.
@@ -39,9 +44,10 @@ class Parser
   private:
     /// Operator precedence table (higher value = higher precedence).
     const std::unordered_map<Token::TokenType, short> oPriority{
-        {Token::TokenType::Add, 2},   {Token::TokenType::Sub, 2},
-        {Token::TokenType::Mul, 3},   {Token::TokenType::Div, 3},
-        {Token::TokenType::Open, 99}, {Token::TokenType::Close, 99},
+        {Token::TokenType::Add, 2},    {Token::TokenType::Sub, 2},
+        {Token::TokenType::Mul, 3},    {Token::TokenType::Div, 3},
+        {Token::TokenType::UMinus, 4}, {Token::TokenType::UPlus, 4},
+        {Token::TokenType::Open, 99},  {Token::TokenType::Close, 99},
     };
 };
 

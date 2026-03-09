@@ -34,14 +34,23 @@ jobs:
         working-directory: build-qual-rel
         run: cmake --build . -j4 -t bench
 
-      - name: Upload docs, coverage, benchmarks
+      - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: docs-and-coverage
-          path: |
-            docs
-            coverage.html
-            bench.json
+          name: code-coverage-report
+          path: coverage.html
+
+      - name: Upload Documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-docs
+          path: docs/
+
+      - name: Upload Benchmarks
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: build-qual-rel/bench/bench.json
 
 
 # =====================================
@@ -168,14 +177,23 @@ jobs:
 
       - name: Build packages
         run: |
-          cmake --build build-release --target python_wheel wasm_zip -j4
+          cmake --build build-release --target python_wheel -j4
           cmake --build build-release --target package
 
-      - name: Upload artifacts
+      - name: Upload Python Wheels
         uses: actions/upload-artifact@v4
         with:
-          name: calculator-dist-${{ github.sha }}
-          path: |
-            build-release/*.tar.gz
-            build-release/src/libs/bindings/python/dist/*.whl
-            build-release/src/libs/bindings/javascript/calculator_wasm.zip
+          name: calculator-python-wheels
+          path: build-release/src/libs/bindings/python/dist/*.whl
+
+      - name: Upload WASM Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-wasm
+          path: src/libs/bindings/javascript/calculator.*
+
+      - name: Upload C++ Tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-cpp-package
+          path: build-release/*.tar.gz

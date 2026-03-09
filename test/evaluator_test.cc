@@ -52,7 +52,8 @@ TEST(Evaluator, StackUnderflow)
     std::vector<Calc::Token> postfix{{TT::Num, 1}, {TT::Add}};
     auto res = evaluator.eval(postfix);
     ASSERT_FALSE(res.has_value());
-    ASSERT_EQ(res.error(), "Stack underflow, invalid input sequence");
+    ASSERT_EQ(res.error(),
+              "Stack underflow: Missing operands for binary operator");
 }
 
 TEST(Evaluator, InvalidFinalStack)
@@ -60,5 +61,33 @@ TEST(Evaluator, InvalidFinalStack)
     std::vector<Calc::Token> postfix{{TT::Num, 1}, {TT::Num, 2}};
     auto res = evaluator.eval(postfix);
     ASSERT_FALSE(res.has_value());
-    ASSERT_EQ(res.error(), "Invalid input sequence");
+    ASSERT_EQ(res.error(), "Invalid expression: stack ended with 2 elements");
+}
+
+TEST(Evaluator, UnaryMinus)
+{
+    std::vector<Calc::Token> postfix{{TT::Num, 3}, {TT::UMinus}};
+
+    auto res = evaluator.eval(postfix);
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), -3);
+}
+
+TEST(Evaluator, DoubleUnaryMinus)
+{
+    std::vector<Calc::Token> postfix{{TT::Num, 3}, {TT::UMinus}, {TT::UMinus}};
+
+    auto res = evaluator.eval(postfix);
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), 3);
+}
+
+TEST(Evaluator, UnaryThenBinary)
+{
+    std::vector<Calc::Token> postfix{
+        {TT::Num, 5}, {TT::Num, 2}, {TT::UMinus}, {TT::Mul}};
+
+    auto res = evaluator.eval(postfix);
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), -10);
 }

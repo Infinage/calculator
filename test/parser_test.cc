@@ -117,3 +117,55 @@ TEST(Parser, ComplexExpression)
     ASSERT_EQ(out[7].type, TT::Div);
     ASSERT_EQ(out[8].type, TT::Add);
 }
+
+TEST(Parser, LeadingUnaryMinus)
+{
+    std::vector<Calc::Token> infix{{TT::Sub}, {TT::Num, 3.0}};
+
+    auto res = parser.parse(infix);
+    ASSERT_TRUE(res.has_value());
+
+    auto &out = res.value();
+    ASSERT_EQ(out.size(), 2);
+
+    ASSERT_EQ(out[0].type, TT::Num);
+    ASSERT_EQ(out[0].number.value(), 3.0);
+
+    ASSERT_EQ(out[1].type, TT::UMinus);
+}
+
+TEST(Parser, UnaryAfterBinaryOperator)
+{
+    std::vector<Calc::Token> infix{
+        {TT::Num, 5}, {TT::Mul}, {TT::Sub}, {TT::Num, 2}};
+
+    auto res = parser.parse(infix);
+    ASSERT_TRUE(res.has_value());
+
+    auto &out = res.value();
+
+    // expected postfix: 5 2 UMINUS *
+    ASSERT_EQ(out.size(), 4);
+
+    ASSERT_EQ(out[0].number.value(), 5);
+    ASSERT_EQ(out[1].number.value(), 2);
+    ASSERT_EQ(out[2].type, TT::UMinus);
+    ASSERT_EQ(out[3].type, TT::Mul);
+}
+
+TEST(Parser, MultipleUnaryOperators)
+{
+    std::vector<Calc::Token> infix{{TT::Sub}, {TT::Sub}, {TT::Num, 3}};
+
+    auto res = parser.parse(infix);
+    ASSERT_TRUE(res.has_value());
+
+    auto &out = res.value();
+
+    // expected: 3 UMINUS UMINUS
+    ASSERT_EQ(out.size(), 3);
+
+    ASSERT_EQ(out[0].number.value(), 3);
+    ASSERT_EQ(out[1].type, TT::UMinus);
+    ASSERT_EQ(out[2].type, TT::UMinus);
+}

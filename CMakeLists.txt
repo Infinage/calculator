@@ -27,6 +27,20 @@ option(BUILD_LANG_BINDINGS "Build language bindings" OFF)
 option(ENABLE_SANITIZERS "Enable UB sanitizers" OFF)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
 option(ENABLE_CLANG_FORMAT "Enable auto source formatting" OFF)
+option(BUILD_ALL "Enable all optional flags" OFF)
+
+if (BUILD_ALL)
+    foreach(opt IN ITEMS 
+        BUILD_TESTS 
+        BUILD_BENCHMARKS 
+        BUILD_FUZZERS 
+        BUILD_LANG_BINDINGS 
+        ENABLE_SANITIZERS 
+        ENABLE_CLANG_TIDY 
+        ENABLE_CLANG_FORMAT)
+        set(${opt} ON CACHE BOOL "Auto-enabled by BUILD_ALL")
+    endforeach()
+endif()
 
 message("Build type is ${CMAKE_BUILD_TYPE}")
 

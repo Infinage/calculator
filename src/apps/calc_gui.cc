@@ -129,13 +129,17 @@ async function calculate() {
 </html>
 )HTML";
 
+#ifdef _WIN32
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#else
 int main()
+#endif
 try
 {
     webview::webview w{false, nullptr};
 
     w.set_title("Calc GUI");
-    w.set_size(480, 640, WEBVIEW_HINT_NONE);
+    w.set_size(480, 525, WEBVIEW_HINT_NONE);
 
     // Bind C++ function callable from JS
     Calc::Calculator calc;

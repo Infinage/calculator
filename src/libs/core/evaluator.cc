@@ -7,14 +7,28 @@ Calc::Evaluator::eval(std::span<Token> postfix) const
     using TT = Token::TokenType;
 
     std::stack<double> stack;
-    for (auto &token : postfix)
+    for (const auto &token : postfix)
     {
         if (token.type == TT::Num)
+        {
+            if (!token.number) return std::unexpected{"Invalid numeric token"};
             stack.push(token.number.value());
-        else if (stack.size() < 2)
-            return std::unexpected{"Stack underflow, invalid input sequence"};
+        }
+        else if (token.type == TT::UMinus || token.type == TT::UPlus)
+        {
+            if (stack.empty())
+                return std::unexpected{
+                    "Stack underflow: Missing operand for unary operator"};
+            double val = stack.top();
+            stack.pop();
+            stack.push(token.type == TT::UMinus ? -val : val);
+        }
         else
         {
+            if (stack.size() < 2)
+                return std::unexpected{
+                    "Stack underflow: Missing operands for binary operator"};
+
             auto v2 = stack.top();
             stack.pop();
             auto v1 = stack.top();
@@ -35,12 +49,15 @@ Calc::Evaluator::eval(std::span<Token> postfix) const
                 stack.push(v1 / v2);
                 break;
             default:
-                return std::unexpected{"Encountered invalid operator"};
+                return std::unexpected{
+                    "Encountered unexpected token type in evaluator"};
             }
         }
     }
 
-    if (stack.size() != 1) return std::unexpected{"Invalid input sequence"};
+    if (stack.size() != 1)
+        return std::unexpected{"Invalid expression: stack ended with " +
+                               std::to_string(stack.size()) + " elements"};
 
     return stack.top();
 }

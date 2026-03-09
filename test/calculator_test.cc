@@ -65,3 +65,67 @@ TEST(Calculator, ImbalancedParentheses)
     ASSERT_FALSE(res.has_value());
     ASSERT_EQ(res.error(), "Imbalanced parentheses");
 }
+
+TEST(Calculator, ChainedUnaryOperators)
+{
+    auto res = calculator.compute("+-+-+-3");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), -3.0);
+}
+
+TEST(Calculator, MultipleUnaryMinus)
+{
+    auto res = calculator.compute("--3");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), 3.0);
+
+    res = calculator.compute("---3");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), -3.0);
+}
+
+TEST(Calculator, UnaryAfterBinaryOperator)
+{
+    auto res = calculator.compute("5+-2");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), 3.0);
+
+    res = calculator.compute("5--2");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), 7.0);
+
+    res = calculator.compute("5*-2");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), -10.0);
+}
+
+TEST(Calculator, UnaryWithParentheses)
+{
+    auto res = calculator.compute("-(3+2)");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), -5.0);
+
+    res = calculator.compute("(-3)");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), -3.0);
+
+    res = calculator.compute("-( -3 )");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), 3.0);
+}
+
+TEST(Calculator, InvalidOperatorSequences)
+{
+    for (auto expr : {"++", "--", "+*", "*+", "3+", "*3"})
+    {
+        auto res = calculator.compute(expr);
+        ASSERT_FALSE(res.has_value()) << "Expression: " << expr;
+    }
+}
+
+TEST(Calculator, EvilUnaryExpression)
+{
+    auto res = calculator.compute("3*-(-2+1)");
+    ASSERT_TRUE(res.has_value());
+    ASSERT_EQ(res.value(), 3.0);
+}
