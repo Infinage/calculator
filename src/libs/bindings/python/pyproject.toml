@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calc"
+version = "0.1"
+
+[tool.setuptools]
+packages = ["calc"]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.package-data]
+calc = ["_libc_api.so", "_libc_api.dll", "_libc_api.dylib"]

@@ -6,6 +6,6 @@ install(TARGETS c_api EXPORT CalcTargets FILE_SET HEADERS)
 
 set(PY_DST "${CMAKE_CURRENT_BINARY_DIR}/../python")
 add_custom_command(TARGET c_api POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PY_DST}
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:c_api> ${PY_DST}/calc
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PY_DST}/calc
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:c_api> ${PY_DST}/calc/_libc_api.so
 )

@@ -8,9 +8,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_custom_target(fuzz
         COMMAND ${CMAKE_COMMAND} -E echo "Cleaning old coverage data..."
         COMMAND find ${CMAKE_BINARY_DIR} -name "*.gcda" -delete
-
         COMMAND ${CMAKE_CURRENT_BINARY_DIR}/calculatorFuzz
-            ${CMAKE_CURRENT_BINARY_DIR}/corpus
             -dict=${CMAKE_CURRENT_SOURCE_DIR}/calculator.dict
             -rss_limit_mb=2048 -max_len=256 -timeout=5 -fork=${nproc}
             -max_total_time=60 -print_final_stats=1

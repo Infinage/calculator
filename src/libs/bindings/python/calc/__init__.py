@@ -4,73 +4,96 @@
 @brief Python bindings for the Calculator C API.
 
 This module provides a thin Python wrapper around the Calculator C API
-implemented in C++. The bindings are implemented using ctypes.
+implemented in C++. The bindings use ctypes to call the shared library.
 
 Example usage:
 
 @code{.py}
-from calc import Calculator
-Calculator.compute("1 + 2 * 3")
+import calc
+c = calc.Calculator()
+c.compute("1 + 2 * 3")
 @endcode
 """
 
-import ctypes
-import pathlib
+# ----------------------------------------------------------------------
+# Internal imports
+# ----------------------------------------------------------------------
+import ctypes as _ctypes
+import pathlib as _pathlib
+import sys as _sys
 
 # ----------------------------------------------------------------------
-# Load the shared library
+# Load the shared C API library (Cross-Platform)
 # ----------------------------------------------------------------------
-lib_path = pathlib.Path(__file__).parent / "libc_api.so"
-lib = ctypes.CDLL(str(lib_path))
+_base_path = _pathlib.Path(__file__).parent
+
+# Map Python platform to expected extension
+_ext_map = {
+    "win32": ".dll",
+    "darwin": ".dylib",
+    "linux": ".so",
+}
+
+# Determine the extension; default to .so for other Unix-like systems
+_ext = _ext_map.get(_sys.platform, ".so")
+_lib_name = f"_libc_api{_ext}"
+_lib_path = _base_path / _lib_name
+
+if not _lib_path.exists():
+    # Fallback: try to find any file starting with _libc_api
+    # Helpful if the binary has a version suffix (e.g., .so.1)
+    _found = list(_base_path.glob("_libc_api.*"))
+    if _found:
+        _lib_path = _found[0]
+    else:
+        raise ImportError(
+            f"Calculator C API binary not found in {_base_path}. "
+            f"Expected {_lib_name}"
+        )
+
+_lib = _ctypes.CDLL(str(_lib_path))
 
 # ----------------------------------------------------------------------
-# Define C function signatures for ctypes
+# Define C function signatures (internal)
 # ----------------------------------------------------------------------
-# bool Calculator_compute(const char *expr, double *result)
-lib.Calculator_compute.argtypes = [ctypes.c_char_p, ctypes.POINTER(ctypes.c_double)]
-lib.Calculator_compute.restype = ctypes.c_bool
+_lib.Calculator_compute.argtypes = [_ctypes.c_char_p, _ctypes.POINTER(_ctypes.c_double)]
+_lib.Calculator_compute.restype = _ctypes.c_bool
 
-# const char *Calculator_get_last_error()
-lib.Calculator_get_last_error.argtypes = []
-lib.Calculator_get_last_error.restype = ctypes.c_char_p
+_lib.Calculator_get_last_error.argtypes = []
+_lib.Calculator_get_last_error.restype = _ctypes.c_char_p
 
 # ----------------------------------------------------------------------
-# Python wrapper class
+# Public Python API
 # ----------------------------------------------------------------------
 class Calculator:
-    """
-    @brief Python interface to the Calculator engine.
+    """Python interface to the C++ Calculator via the C API.
 
-    Provides access to the underlying C++ calculator via the C API.
-    Expressions are evaluated using the static method compute().
+    Provides a simple static method for evaluating expressions.
+    Handles errors raised by the underlying C API.
     """
 
     @staticmethod
     def compute(expr: str) -> float:
-        """
-        @brief Compute the result of a mathematical expression.
+        """Evaluate a mathematical expression using the C API.
 
-        Calls the C API function `Calculator_compute`. Raises a ValueError if the
-        computation fails (e.g., invalid syntax or imbalanced parentheses).
+        Args:
+            expr (str): The expression to evaluate.
 
-        @param expr The expression to compute (e.g., "1 + 2 * 3").
-        @return The computed result as a float.
-        @throws ValueError If the expression is invalid or evaluation fails.
+        Returns:
+            float: Result of the expression.
+
+        Raises:
+            ValueError: If the expression is invalid or evaluation fails.
         """
-        result = ctypes.c_double()
-        success = lib.Calculator_compute(expr.encode("utf-8"), ctypes.byref(result))
+        result = _ctypes.c_double()
+        success = _lib.Calculator_compute(expr.encode("utf-8"), _ctypes.byref(result))
         if not success:
-            # Retrieve the last error from the C API (returns a c_char_p)
-            err = lib.Calculator_get_last_error().decode("utf-8")
-            raise ValueError(f"Computation error: {err}")
+            err = _lib.Calculator_get_last_error().decode("utf-8")
+            raise ValueError(f"{err}")
         return result.value
 
 # ----------------------------------------------------------------------
-# Example usage when run as a script
+# Public API export
+# Only these names are visible to external users
 # ----------------------------------------------------------------------
-if __name__ == "__main__":
-    print("Compute '1 + 2 * 3':", Calculator.compute("1 + 2 * 3"))
-    try:
-        Calculator.compute("12 + 3)")
-    except ValueError as e:
-        print("Caught error:", e)
+__all__ = ["Calculator"]

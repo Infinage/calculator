@@ -27,7 +27,7 @@ option(BUILD_LANG_BINDINGS "Build language bindings" OFF)
 option(ENABLE_SANITIZERS "Enable UB sanitizers" OFF)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
 option(ENABLE_CLANG_FORMAT "Enable auto source formatting" OFF)
-option(BUILD_ALL "Enable all optional flags" OFF)
+option(BUILD_ALL "Enable all optional flags, overrides options already set" OFF)
 
 if (BUILD_ALL)
     foreach(opt IN ITEMS 
@@ -38,7 +38,7 @@ if (BUILD_ALL)
         ENABLE_SANITIZERS 
         ENABLE_CLANG_TIDY 
         ENABLE_CLANG_FORMAT)
-        set(${opt} ON CACHE BOOL "Auto-enabled by BUILD_ALL")
+        set(${opt} ON CACHE BOOL "Auto-enabled by BUILD_ALL" FORCE)
     endforeach()
 endif()
 
@@ -93,7 +93,9 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_CALL_GRAPH YES)
     set(DOXYGEN_CALLER_GRAPH YES)
     set(DOXYGEN_GRAPHICAL_HIERARCHY YES)
+    set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
     doxygen_add_docs(docs ${CMAKE_SOURCE_DIR}/src/libs/core 
+        ${CMAKE_SOURCE_DIR}/README.md
         COMMENT "Generating HTML documentation")
 endif()
 

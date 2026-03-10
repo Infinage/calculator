@@ -2,6 +2,8 @@
 
 A modular calculator library and application written in modern **C++23**.
 
+![Calculator GUI](assets/calculator-gui.png)
+
 The project implements a complete expression evaluation pipeline:
 
 ```
@@ -16,7 +18,7 @@ Tokenizer  →  Parser (Shunting Yard)  →  Evaluator
 
 The repository includes:
 
-* A reusable **calculator library**
+* A reusable **Calculator library**
 * A **CLI application**
 * A **GUI application**
 * Optional **language bindings**
@@ -27,7 +29,19 @@ The repository includes:
 
 ---
 
-### Features
+## Quick Start
+
+```bash
+git clone https://github.com/<user>/calculator
+cd calculator
+cmake -B build
+cmake --build build
+./build/src/apps/calc
+```
+
+---
+
+## Features
 
 * Modern **C++23**
 * Fully modular architecture
@@ -43,7 +57,7 @@ The repository includes:
 
 ---
 
-### Project Structure
+## Project Structure
 
 ```
 .
@@ -81,16 +95,16 @@ Core components:
 
 ---
 
-### Build
+## Build
 
-#### Requirements
+### Requirements
 
 * CMake **≥ 3.30**
 * C++23 compatible compiler
 
 ---
 
-#### Basic build
+### Basic build
 
 ```
 git clone <repo>
@@ -108,7 +122,7 @@ Run CLI:
 
 ---
 
-### CMake Options
+## CMake Options
 
 | Option                | Description             |
 | --------------------- | ----------------------- |
@@ -129,7 +143,7 @@ cmake -B build -DBUILD_ALL=ON
 
 ---
 
-### Running Tests
+## Running Tests
 
 ```
 cmake -B build -DBUILD_TESTS=ON
@@ -139,7 +153,7 @@ ctest --test-dir build
 
 ---
 
-### Coverage
+## Coverage
 
 ```
 cmake -B build -DBUILD_TESTS=ON
@@ -152,9 +166,13 @@ Produces:
 coverage.html
 ```
 
+You can browse the hosted coverage report online:
+
+http://calculator.infinage.space/coverage
+
 ---
 
-### Benchmarks
+## Benchmarks
 
 Uses **Google Benchmark**.
 
@@ -169,9 +187,13 @@ Results are exported to:
 bench.json
 ```
 
+Sample results:
+
+![Benchmark results](assets/calculator-bench.png)
+
 ---
 
-### Fuzz Testing
+## Fuzz Testing
 
 Uses **libFuzzer**.
 
@@ -184,7 +206,7 @@ Runs fuzzing for 60 seconds by default.
 
 ---
 
-### CLI Usage
+## CLI Usage
 
 Example:
 
@@ -194,9 +216,19 @@ $ calc
 7
 ```
 
+![CLI](assets/calculator-cli.png)
+
 ---
 
-### GUI
+## CLI Comparison
+
+Comparison with `bc` and `Python` eval.
+
+![CLI comparison](assets/cli-comparison.png)
+
+---
+
+## GUI
 
 The project includes a lightweight GUI using **webview**.
 
@@ -206,7 +238,17 @@ calc-gui
 
 ---
 
-### Using as a Library
+## Web (WebAssembly)
+
+The calculator can run in the browser via WebAssembly.
+
+Try it here: http://calculator.infinage.space
+
+![Web version](assets/calculator-web.png)
+
+---
+
+## Using as a Library
 
 Example:
 
@@ -225,7 +267,7 @@ else
 
 ---
 
-### Installation
+## Installation
 
 ```
 cmake -B build
@@ -240,9 +282,11 @@ find_package(Calc REQUIRED)
 target_link_libraries(my_app PRIVATE Calc::calculator)
 ```
 
+![Find package test](assets/find-package.png)
+
 ---
 
-### Language Bindings
+## Language Bindings
 
 Optional bindings:
 
@@ -258,9 +302,11 @@ Enable with:
 -DBUILD_LANG_BINDINGS=ON
 ```
 
+![Python bindings](assets/python-bindings.png)
+
 ---
 
-### Documentation
+## Documentation
 
 Doxygen docs can be generated with:
 
@@ -274,9 +320,13 @@ Generated in:
 docs/
 ```
 
+You can browse the hosted documentation online:
+
+http://calculator.infinage.space/docs
+
 ---
 
-### Packaging
+## Packaging
 
 Release packages can be generated using **CPack**:
 
@@ -286,17 +336,6 @@ cpack -G "TGZ;DEB"
 
 ---
 
-### Roadmap / TODO
-
-* Add proper GitHub Actions CI to:
-  * Produce installers for **Windows / macOS / Linux**
-* Use `configure_file` for templated files
-* Minify documentation to `docs-sample` or host via GitHub Pages
-* Host `calculator.html` via GitHub Pages
-* Add additional language bindings for Rust
-
----
-
-### License
+## License
 
 MIT License

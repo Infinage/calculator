@@ -1,19 +1,14 @@
 """
 @file setup.py
-@brief Packaging configuration for the Python Calculator bindings.
+@brief Minimal shim to force platform-specific wheel generation.
 
-This script builds and installs the `calc` Python package which wraps
-the Calculator C API.
+This script supplements pyproject.toml. By defining has_ext_modules, 
+we ensure the resulting wheel is tagged with the current OS and CPU 
+architecture, as it contains a compiled C++ shared library (.so/.dll).
 """
 
-import pathlib
 import setuptools
 
-here = pathlib.Path(__file__).parent
-
-setuptools.setup(
-    name="calc",
-    version="0.1",
-    packages=setuptools.find_packages(),
-    package_data={"calc": ["libc_api.so"]},
-)
+# The lambda: True hack forces setuptools to treat this as a non-pure package.
+# All other metadata (name, version, etc.) is pulled from pyproject.toml.
+setuptools.setup(has_ext_modules=lambda: True)
