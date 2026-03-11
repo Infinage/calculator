@@ -1,4 +1,7 @@
 # Calculator
+[![C++](https://img.shields.io/badge/C%2B%2B-23-blue)]()
+[![CMake](https://img.shields.io/badge/CMake-3.30+-green)]()
+[![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 A modular calculator library and application written in modern **C++23**.
 
@@ -16,7 +19,9 @@ Tokenizer  →  Parser (Shunting Yard)  →  Evaluator
    Tokens        Postfix (RPN)          double
 ```
 
-The repository includes:
+Each stage is implemented as an independent component, allowing the library to be reused or extended.
+
+The project includes:
 
 * A reusable **Calculator library**
 * A **CLI application**
@@ -32,7 +37,7 @@ The repository includes:
 ## Quick Start
 
 ```bash
-git clone https://github.com/<user>/calculator
+git clone https://github.com/infinage/calculator
 cd calculator
 cmake -B build
 cmake --build build
@@ -107,8 +112,8 @@ Core components:
 ### Basic build
 
 ```
-git clone <repo>
-cd calc
+git clone https://github.com/infinage/calculator
+cd calculator
 
 cmake -B build
 cmake --build build
@@ -248,6 +253,32 @@ Try it here: http://calculator.infinage.space
 
 ---
 
+## Installation
+
+```
+cmake -B build
+cmake --build build
+cmake --install build --prefix /usr/local
+```
+
+Then use via CMake:
+
+```
+cmake_minimum_required(VERSION 3.30)
+project(MyApp)
+
+find_package(Calc REQUIRED)
+
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE Calc::calculator)
+```
+
+Demonstration of a separate project successfully locating the installed Calc package using find_package.
+
+![Find package test](assets/find-package.png)
+
+---
+
 ## Using as a Library
 
 Example:
@@ -267,25 +298,6 @@ else
 
 ---
 
-## Installation
-
-```
-cmake -B build
-cmake --build build
-cmake --install build
-```
-
-Then use via CMake:
-
-```
-find_package(Calc REQUIRED)
-target_link_libraries(my_app PRIVATE Calc::calculator)
-```
-
-![Find package test](assets/find-package.png)
-
----
-
 ## Language Bindings
 
 Optional bindings:
@@ -300,6 +312,13 @@ Enable with:
 
 ```
 -DBUILD_LANG_BINDINGS=ON
+```
+
+Python language bindings sample:
+
+```python
+from calc import Calculator
+print(Calculator.compute("1 + 2 * 3"))
 ```
 
 ![Python bindings](assets/python-bindings.png)
